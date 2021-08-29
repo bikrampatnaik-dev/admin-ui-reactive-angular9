@@ -1,0 +1,119 @@
+<input
+  class="search"
+  type="text"
+  [(ngModel)]="searchModel"
+  (keyup)="onSearch()"
+  name="search"
+  placeholder="Search by Name, Email, Role"
+/>
+
+<form [formGroup]="invoiceForm">
+  <table id="pager" class="wp-list-table widefat striped posts">
+    <thead>
+      <tr>
+        <th>
+          <input
+            type="checkbox"
+            formControlName="isCheckedAll"
+            class="form-controls"
+            (click)="toggleAllCheckbox()"
+          />
+        </th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody formArrayName="Rows">
+      <tr
+        *ngFor="
+          let itemrow of invoiceForm.controls.Rows['controls']
+            | customerEmailFilter: searchModel;
+          let i = index;
+          let l = last
+        "
+        [formGroupName]="i"
+        id="visbileRow"
+      >
+        <td #checkbox>
+          <input
+            type="checkbox"
+            formControlName="isChecked"
+            (click)="
+              toggleCheck(i, !formArr.controls[i].get('isChecked').value)
+            "
+            class="form-controls input-td"
+          />
+        </td>
+        <td>
+          <input formControlName="name" class="input-td" />
+        </td>
+        <td>
+          <input formControlName="email" class="input-td" />
+        </td>
+        <td>
+          <input formControlName="role" class="input-td" />
+        </td>
+        <td>
+          <a href="#">
+            <img
+              src="/assets/edit.png"
+              alt="edit"
+              (click)="enableEditRow(i, 'enable')"
+            />
+            <img
+              src="/assets/save.png"
+              alt="save"
+              (click)="enableEditRow(i, 'disable')"
+            />
+          </a>
+
+          <a href="#" (click)="deleteRow(i)">
+            <img src="/assets/delete.png" alt="delete" />
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="submit" (click)="deleteAllRow()" class="btn primary float-left">
+    Delete Selected
+  </button>
+
+  <!-- 
+
+
+	<table border=1>
+		<thead>
+			<th>Id. <input type="checkbox" formControlName="isCheckedAll" class="form-controls"></th>
+			<th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+			<th>Action</th>
+		</thead>
+		<tbody formArrayName="Rows">
+			<tr *ngFor="let itemrow of invoiceForm.controls.Rows['controls']; let i=index;let l=last"	[formGroupName]="i">
+				<td>{{i+1}}. <input type="checkbox" formControlName="isChecked" class="form-controls input-td"></td>
+				<td>
+					<input formControlName="name" class="input-td">
+        </td>
+        <td>
+					<input formControlName="email" class="input-td">
+        </td>
+        <td>
+					<input formControlName="role" class="input-td">
+        </td>
+				<td>
+					
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+
+
+
+<pre>{{invoiceForm.value | json}}</pre> -->
+</form>
+<div id="pageNavPosition" class="pager-nav float-right" #pagination></div>
