@@ -73,6 +73,10 @@ export class TablesComponent implements OnInit {
     return { from, to };
   }
 
+  get controls() {
+    return this.formArr.controls;
+  }
+
   formsInit() {
     this.invoiceForm = this._fb.group({
       search: "",
@@ -104,8 +108,8 @@ export class TablesComponent implements OnInit {
   }
 
   deleteAllRow() {
-    for (let i = 0; i <= this.formArr.controls.length; i++) {
-      let checkboxEle = this.formArr.controls[i];
+    this.controls.map((value, i) => {
+      let checkboxEle = value;
       if (checkboxEle && checkboxEle.get("isChecked").value) {
         let id = JSON.parse(checkboxEle.get("id").value);
         this.rows[i].style.display = "none";
@@ -114,7 +118,7 @@ export class TablesComponent implements OnInit {
           1
         );
       }
-    }
+    });
     this.formsInit();
     this.currentPage = 1;
     this.paginationInit("pager", this.tableRowData.length);
@@ -122,16 +126,16 @@ export class TablesComponent implements OnInit {
 
   enableEditRow(index: number, action: string) {
     this.isEditable = action;
-    this.formArr.controls[index].get("name")[this.isEditable]();
-    this.formArr.controls[index].get("email")[this.isEditable]();
-    this.formArr.controls[index].get("role")[this.isEditable]();
+    this.controls[index].get("name")[this.isEditable]();
+    this.controls[index].get("email")[this.isEditable]();
+    this.controls[index].get("role")[this.isEditable]();
   }
 
   toggleAllCheckbox() {
     const isCheckAll = !this.invoiceForm.controls.isCheckedAll.value;
     for (let i = this.fromTo.from; i <= this.fromTo.to; i++) {
-      if (this.formArr.controls[i]) {
-        this.formArr.controls[i]["controls"].isChecked.setValue(isCheckAll);
+      if (this.controls[i]) {
+        this.controls[i]["controls"].isChecked.setValue(isCheckAll);
       }
       this.highlightRow(isCheckAll, i);
     }
@@ -139,30 +143,23 @@ export class TablesComponent implements OnInit {
 
   toggleCheck(i, evt) {
     let event: boolean = evt;
-    this.formArr.controls[i]["controls"].isChecked.setValue(event);
+    this.controls[i]["controls"].isChecked.setValue(event);
     this.checkViewPort();
     this.highlightRow(event, i);
   }
 
   highlightRow(event, i) {
-    if (event) {
-      this.rows[i].style.background = "#dfdfdf";
-    } else {
-      this.rows[i].style.background = "";
-    }
+    this.rows[i].style.background = event ? "#dfdfdf" : "";
   }
 
   checkViewPort() {
     let count = 0;
     for (let i = this.fromTo.from; i <= this.fromTo.to; i++) {
-      if (
-        this.formArr.controls[i] &&
-        this.formArr.controls[i].get("isChecked").value
-      ) {
+      if (this.controls[i] && this.controls[i].get("isChecked").value) {
         count = count + 1;
       }
     }
-    if (count === 10 || count === this.lastPageCount - 1) {
+    if (count === this.itemsPerPage || count === this.lastPageCount - 1) {
       this.invoiceForm.controls.isCheckedAll.setValue(true);
     } else {
       this.invoiceForm.controls.isCheckedAll.setValue(false);
@@ -176,19 +173,20 @@ export class TablesComponent implements OnInit {
    * Show 10 row in a table
    * PURE JAVASCRIPT
    */
-  paginationInit(tableName, length, isShow?) {
+  paginationInit(tableName, length) {
     this.tableName = tableName;
     let records = length + 1;
     this.pages = Math.ceil(records / this.itemsPerPage);
     const dec = Math.abs(this.pages);
     const num = Math.floor(dec);
     const lsC = dec - num;
-    this.lastPageCount = JSON.parse(lsC.toFixed(1).split(".")[1]);
+    this.lastPageCount =
+      lsC.toFixed(1).split(".").length > 0
+        ? JSON.parse(lsC.toFixed(1).split(".")[1])
+        : null;
     this.inited = true;
     this.showPageNav();
-    setTimeout(() => {
-      this.showPage(1);
-    }, 0);
+    setTimeout(() => this.showPage(1), 0);
   }
 
   get rows() {
